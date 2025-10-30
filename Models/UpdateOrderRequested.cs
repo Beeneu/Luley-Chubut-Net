@@ -1,4 +1,4 @@
-namespace Luley_Integracion_Net.models;
+namespace Luley_Integracion_Net.Models;
 
 public class UpdateOrderRequested()
 {

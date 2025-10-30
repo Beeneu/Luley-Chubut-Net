@@ -1,9 +1,8 @@
-using System.Data.Odbc;
 using Luley_Integracion_Net.Data;
 
 namespace Luley_Integracion_Net.Repositories;
 
-public class OrderRepository(HanaConnection hanaConnection)
+public class HanaDbRepository(HanaConnection hanaConnection)
 {
     private readonly HanaConnection _hanaConnection = hanaConnection;
     private readonly string QUERY_PATH = "Queries/UpdateOrders.sql";

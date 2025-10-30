@@ -1,4 +1,4 @@
-namespace Luley_Integracion_Net.models;
+namespace Luley_Integracion_Net.Models;
 
 public class DeliveryNote()
 {
@@ -18,4 +18,12 @@ public class DeliveryNote()
     {
         return new DeliveryNote(nroRemito, cantidadRemitida, estadoRemito);
     }
+}
+
+public class DeliveryNoteDataModel
+{
+    public required string nroRemito { get; set; }
+    public required string codArticulo { get; set; }
+    public int cantidadRemitida { get; set; }
+    public int estadoRemito { get; set; }
 }

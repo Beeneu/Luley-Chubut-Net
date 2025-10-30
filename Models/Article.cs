@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.StaticAssets;
-
-namespace Luley_Integracion_Net.models;
+namespace Luley_Integracion_Net.Models;
 
 public class Article()
 {

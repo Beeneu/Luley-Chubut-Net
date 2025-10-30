@@ -2,6 +2,7 @@ using DotNetEnv;
 using Luley_Integracion_Net.Data;
 using Luley_Integracion_Net.Repositories;
 using Luley_Integracion_Net.Services;
+using Microsoft.EntityFrameworkCore;
 
 Env.Load();
 
@@ -27,11 +28,32 @@ builder.Services.AddScoped(sp =>
     return new HttpService(httpClient, baseUrl);
 });
 
+builder.Services.AddDbContext<LuleyDbContext>(
+    static (sp, options) =>
+    {
+        var host = Env.GetString("DB_HOST");
+        var user = Env.GetString("DB_USER");
+        var password = Env.GetString("DB_PASSWORD");
+        var dbName = Env.GetString("DB_NAME");
+
+        options.UseNpgsql(
+            $"Host={host};Port=5432;Username={user};Password={password};Database={dbName}"
+        );
+    }
+);
+
 // Add repositories
-builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<HanaDbRepository>();
+builder.Services.AddScoped<DeliveryNoteDbRepository>();
 builder.Services.AddScoped<OrderService>();
 
 var app = builder.Build();
+
+// Checking if the connection with Postgres succeeded
+await using var scope = app.Services.CreateAsyncScope();
+var db = scope.ServiceProvider.GetRequiredService<LuleyDbContext>();
+var canConnect = await db.Database.CanConnectAsync();
+app.Logger.LogInformation("Connection with Postgres stablished?: {canConnect}", canConnect);
 
 app.MapGet(
     "/",

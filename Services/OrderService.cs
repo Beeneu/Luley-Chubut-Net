@@ -1,12 +1,17 @@
-using Luley_Integracion_Net.models;
+using Luley_Integracion_Net.Models;
 using Luley_Integracion_Net.Repositories;
 
 namespace Luley_Integracion_Net.Services;
 
-public class OrderService(OrderRepository repository, HttpService httpService)
+public class OrderService(
+    HanaDbRepository repository,
+    HttpService httpService,
+    DeliveryNoteDbRepository dnrepository
+)
 {
-    private readonly OrderRepository _repository = repository;
+    private readonly HanaDbRepository _repository = repository;
     private readonly HttpService _httpService = httpService;
+    private readonly DeliveryNoteDbRepository _dnrepository = dnrepository;
     private readonly string NRO_REMITO = "nroRemito";
     private readonly string NUM_PEDIDO = "numPedido";
     private readonly string NUM_SUB_PEDIDO = "numSubPedido";
@@ -34,10 +39,7 @@ public class OrderService(OrderRepository repository, HttpService httpService)
         {
             if (!raw_order.TryGetValue(NUM_PEDIDO, out var numPedido) || numPedido == null)
                 continue;
-            if (
-                !raw_order.TryGetValue(NUM_SUB_PEDIDO, out var numSubPedido)
-                || numSubPedido == null
-            )
+            if (!raw_order.TryGetValue(NUM_SUB_PEDIDO, out var numSubPedido) || numSubPedido == null)
                 continue;
 
             raw_order.TryGetValue(NRO_REMITO, out var numRemito);
@@ -96,11 +98,50 @@ public class OrderService(OrderRepository repository, HttpService httpService)
             }
         }
 
+        var allDeliveryNotesDataModel = ordersToUpdate
+            .SelectMany(o => o.articulos)
+            .SelectMany(a => a.remitos?.Select(r => new DeliveryNoteDataModel
+            {
+                nroRemito = r.nroRemito,
+                codArticulo = a.codArticulo,
+                cantidadRemitida = r.cantidadRemitida,
+                estadoRemito = r.estadoRemito
+            }) ?? [])
+            .ToList();
+
+        var deliveryNotesToSend = await _dnrepository.GetModifiedDeliveryNotesAsync(allDeliveryNotesDataModel);
+
+        var validKeys = deliveryNotesToSend
+            .Select(dn => (dn.nroRemito, dn.codArticulo))
+            .ToHashSet();
+
+        var finalOrders = ordersToUpdate
+            .Select(order => new UpdateOrderRequested
+            {
+                numPedido = order.numPedido,
+                numSubPedido = order.numSubPedido,
+                articulos =
+                [
+                    .. order
+                        .articulos.Select(article => new Article
+                        {
+                            codArticulo = article.codArticulo,
+                            remitos = article
+                                .remitos?.Where(r =>
+                                    validKeys.Contains((r.nroRemito, article.codArticulo))
+                                )
+                                .ToList(),
+                        })
+                        .Where(a => a.remitos != null && a.remitos.Count > 0),
+                ],
+            })
+            .Where(o => o.articulos.Count > 0)
+            .ToList();
+
         await _httpService.EnsureAuthenticatedAsync();
 
-        // make requests in parallel with a maximun of 5 concurrent requests
         var semaphore = new SemaphoreSlim(3);
-        var tasks = ordersToUpdate
+        var tasks = finalOrders
             .Select(async otu =>
             {
                 await semaphore.WaitAsync();
@@ -138,7 +179,7 @@ public class OrderService(OrderRepository repository, HttpService httpService)
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine(
-            $"\n✓ Successfully updated {ordersToUpdate.Count} orders (max 5 concurrent)"
+            $"\n✓ Successfully updated {finalOrders.Count} orders (max 3 concurrent)"
         );
         Console.ResetColor();
     }
