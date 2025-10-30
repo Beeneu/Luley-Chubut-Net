@@ -98,24 +98,36 @@ public class OrderService(
             }
         }
 
-        var allDeliveryNotesDataModel = ordersToUpdate
-            .SelectMany(o => o.articulos)
-            .SelectMany(a => a.remitos?.Select(r => new DeliveryNoteDataModel
-            {
-                nroRemito = r.nroRemito,
-                codArticulo = a.codArticulo,
-                cantidadRemitida = r.cantidadRemitida,
-                estadoRemito = r.estadoRemito
-            }) ?? [])
+        var ordersWithRemitos = ordersToUpdate
+            .Where(o => o.articulos.Any(a => a.remitos != null && a.remitos.Count > 0))
             .ToList();
 
-        var deliveryNotesToSend = await _dnrepository.GetModifiedDeliveryNotesAsync(allDeliveryNotesDataModel);
+        var ordersWithoutRemitos = ordersToUpdate
+            .Where(o => o.articulos.All(a => a.remitos == null || a.remitos.Count == 0))
+            .ToList();
+
+        var allDeliveryNotesDataModel = ordersWithRemitos
+            .SelectMany(o => o.articulos)
+            .SelectMany(a =>
+                a.remitos?.Select(r => new DeliveryNoteDataModel
+                {
+                    nroRemito = r.nroRemito,
+                    codArticulo = a.codArticulo,
+                    cantidadRemitida = r.cantidadRemitida,
+                    estadoRemito = r.estadoRemito,
+                })
+                    ?? []
+            )
+            .ToList();
+
+        var deliveryNotesToSend =
+            await _dnrepository.GetModifiedDeliveryNotesAsync(allDeliveryNotesDataModel);
 
         var validKeys = deliveryNotesToSend
             .Select(dn => (dn.nroRemito, dn.codArticulo))
             .ToHashSet();
 
-        var finalOrders = ordersToUpdate
+        var filteredOrdersWithRemitos = ordersWithRemitos
             .Select(order => new UpdateOrderRequested
             {
                 numPedido = order.numPedido,
@@ -137,6 +149,8 @@ public class OrderService(
             })
             .Where(o => o.articulos.Count > 0)
             .ToList();
+
+        var finalOrders = filteredOrdersWithRemitos.Concat(ordersWithoutRemitos).ToList();
 
         await _httpService.EnsureAuthenticatedAsync();
 

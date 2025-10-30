@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Luley_Integracion_Net.Models;
-
 namespace Luley_Integracion_Net.Services;
 
 public class HttpService(HttpClient httpClient, string baseUrl)
@@ -44,7 +43,7 @@ public class HttpService(HttpClient httpClient, string baseUrl)
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         HttpResponseMessage response = await _httpClient.PostAsync(url, content);
-        // response.EnsureSuccessStatusCode();
+        response.EnsureSuccessStatusCode();
         string responseContent = await response.Content.ReadAsStringAsync();
 
         var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent);
