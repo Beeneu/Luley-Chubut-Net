@@ -1,79 +1,79 @@
-name: deploy
+# name: deploy
 
-on:
-  push:
-    branches: ["main", "dev"]
+# on:
+#   push:
+#     branches: ["main", "dev"]
 
-jobs:
-  deploy:
-    name: 🎉 Deploy to main
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code with LFS
-        uses: actions/checkout@v4
-        with:
-          lfs: true
+# jobs:
+#   deploy:
+#     name: 🎉 Deploy to main
+#     runs-on: ubuntu-latest
+#     if: github.ref == 'refs/heads/main'
+#     steps:
+#       - name: Checkout code with LFS
+#         uses: actions/checkout@v4
+#         with:
+#           lfs: true
       
-      - name: Checkout LFS objects
-        run: git lfs pull
+#       - name: Checkout LFS objects
+#         run: git lfs pull
       
-      - name: Verify LFS file downloaded
-        run: |
-          echo "📦 Checking if HANA client was downloaded..."
-          ls -lh hanaclient-*.tar.gz || echo "❌ HANA client file not found!"
-          if [ -f hanaclient-*.tar.gz ]; then
-            echo "✅ HANA client found: $(ls -lh hanaclient-*.tar.gz)"
-            file hanaclient-*.tar.gz
-          fi
+#       - name: Verify LFS file downloaded
+#         run: |
+#           echo "📦 Checking if HANA client was downloaded..."
+#           ls -lh hanaclient-*.tar.gz || echo "❌ HANA client file not found!"
+#           if [ -f hanaclient-*.tar.gz ]; then
+#             echo "✅ HANA client found: $(ls -lh hanaclient-*.tar.gz)"
+#             file hanaclient-*.tar.gz
+#           fi
       
-      - name: executing remote ssh commands
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          script: |
-            # Ensure Git LFS is installed and configured on server
-            which git-lfs || (sudo apt-get update && sudo apt-get install -y git-lfs)
-            git lfs install
-            # Run deploy
-            cd /home/deploy && ./deploy-cli.sh luley-chubut-net API-Luley-Chubut-Net main
+#       - name: executing remote ssh commands
+#         uses: appleboy/ssh-action@v1.2.0
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USER }}
+#           password: ${{ secrets.PASSWORD }}
+#           port: ${{ secrets.PORT }}
+#           script: |
+#             # Ensure Git LFS is installed and configured on server
+#             which git-lfs || (sudo apt-get update && sudo apt-get install -y git-lfs)
+#             git lfs install
+#             # Run deploy
+#             cd /home/deploy && ./deploy-cli.sh luley-chubut-net API-Luley-Chubut-Net main
 
 
-  deploy-dev:
-    name: 🧪 Deploy to dev
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev'
-    steps:
-      - name: Checkout code with LFS
-        uses: actions/checkout@v4
-        with:
-          lfs: true
+#   deploy-dev:
+#     name: 🧪 Deploy to dev
+#     runs-on: ubuntu-latest
+#     if: github.ref == 'refs/heads/dev'
+#     steps:
+#       - name: Checkout code with LFS
+#         uses: actions/checkout@v4
+#         with:
+#           lfs: true
       
-      - name: Checkout LFS objects
-        run: git lfs pull
+#       - name: Checkout LFS objects
+#         run: git lfs pull
       
-      - name: Verify LFS file downloaded
-        run: |
-          echo "📦 Checking if HANA client was downloaded..."
-          ls -lh hanaclient-*.tar.gz || echo "❌ HANA client file not found!"
-          if [ -f hanaclient-*.tar.gz ]; then
-            echo "✅ HANA client found: $(ls -lh hanaclient-*.tar.gz)"
-            file hanaclient-*.tar.gz
-          fi
+#       - name: Verify LFS file downloaded
+#         run: |
+#           echo "📦 Checking if HANA client was downloaded..."
+#           ls -lh hanaclient-*.tar.gz || echo "❌ HANA client file not found!"
+#           if [ -f hanaclient-*.tar.gz ]; then
+#             echo "✅ HANA client found: $(ls -lh hanaclient-*.tar.gz)"
+#             file hanaclient-*.tar.gz
+#           fi
       
-      - name: executing remote ssh commands
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          script: |
-            # Ensure Git LFS is installed and configured on server
-            which git-lfs || (sudo apt-get update && sudo apt-get install -y git-lfs)
-            git lfs install
-            # Run deploy
-            cd /home/deploy && ./deploy-cli.sh dev-luley-chubut-net Dev-Stage/DEV-API-Luley-Chubut-Net dev  
+#       - name: executing remote ssh commands
+#         uses: appleboy/ssh-action@v1.2.0
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USER }}
+#           password: ${{ secrets.PASSWORD }}
+#           port: ${{ secrets.PORT }}
+#           script: |
+#             # Ensure Git LFS is installed and configured on server
+#             which git-lfs || (sudo apt-get update && sudo apt-get install -y git-lfs)
+#             git lfs install
+#             # Run deploy
+#             cd /home/deploy && ./deploy-cli.sh dev-luley-chubut-net Dev-Stage/DEV-API-Luley-Chubut-Net dev  
