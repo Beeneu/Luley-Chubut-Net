@@ -71,4 +71,9 @@ jobs:
           username: ${{ secrets.USER }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          script: cd /home/deploy && ./deploy-cli.sh dev-luley-chubut-net Dev-Stage/DEV-API-Luley-Chubut-Net dev  
+          script: |
+            # Ensure Git LFS is installed and configured on server
+            which git-lfs || (sudo apt-get update && sudo apt-get install -y git-lfs)
+            git lfs install
+            # Run deploy
+            cd /home/deploy && ./deploy-cli.sh dev-luley-chubut-net Dev-Stage/DEV-API-Luley-Chubut-Net dev  

@@ -45,7 +45,7 @@ RUN cd /tmp && \
     cd client && \
     ./hdbinst -a client --path=/usr/sap/hdbclient && \
     cd / && \
-    rm -rf /tmp/hanaclient.tar.gz /tmp/client /tmp/SAP_HANA_CLIENT
+    rm -rf /tmp/hanaclient.tar.gz /tmp/client /tmp/client
 
 
 # Configure ODBC
