@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Debug: List files in build context to verify hanaclient*.tar.gz exists
-RUN echo "📦 Files in build context:" && ls -la /src
+RUN echo "📦 Files in build context:" && ls -la /app && ls -la
 
 # Copy HANA client (managed by Git LFS locally)
 COPY hanaclient*.tar.gz /tmp/hanaclient.tar.gz
