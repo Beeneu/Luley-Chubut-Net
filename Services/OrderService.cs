@@ -61,6 +61,8 @@ public class OrderService(
             string numeroSubPedidoStr = Convert.ToString(numSubPedido)!;
             string codArticuloStr = Convert.ToString(codArticulo)!;
 
+            
+
             bool hasDeliveryNote = numeroRemitoStr != null && cantidadRemitidaInt != null;
             DeliveryNote? deliveryNote = null;
 
@@ -70,7 +72,7 @@ public class OrderService(
             if (hasDeliveryNote)
             {
                 deliveryNote = DeliveryNote.Create(
-                    numeroRemitoStr!,
+                    numeroRemitoStr ?? "",
                     cantidadRemitidaInt ?? -1, // It will never reach this ??, but ill put it here just so the compiles stfu
                     estadoRemitoInt
                 );
@@ -163,7 +165,7 @@ public class OrderService(
                 // orders to cancel
                 if (
                     otu.articulos.Any(a =>
-                        a.remitos is not null && a.remitos.Any(r => r.estadoRemito == 7)
+                        a.remitos is not null && a.remitos.Any(r => r.estadoRemito == 8)
                     )
                 )
                     try

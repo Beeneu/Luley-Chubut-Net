@@ -47,6 +47,9 @@ builder.Services.AddScoped<HanaDbRepository>();
 builder.Services.AddScoped<DeliveryNoteDbRepository>();
 builder.Services.AddScoped<OrderService>();
 
+// Add cron job
+builder.Services.AddHostedService<OrderCronJob>();
+
 var app = builder.Build();
 
 // Checking if the connection with Postgres succeeded

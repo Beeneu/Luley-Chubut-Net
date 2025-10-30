@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using Luley_Integracion_Net.Models;
@@ -65,40 +66,6 @@ public class HttpService(HttpClient httpClient, string baseUrl)
         Console.ResetColor();
     }
 
-    private async Task<T?> ExecuteWithRetryAsync<T>(
-        Func<Task<HttpResponseMessage>> request,
-        string method,
-        string url
-    )
-    {
-        await EnsureAuthenticatedAsync();
-
-        HttpResponseMessage response = await request();
-
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("[AUTH] Token expired, re-authenticating...");
-            Console.ResetColor();
-
-            lock (_tokenLock)
-            {
-                _token = null;
-            }
-
-            await LoginAsync();
-            response = await request();
-        }
-
-        // response.EnsureSuccessStatusCode();
-        string responseContent = await response.Content.ReadAsStringAsync();
-        LogResponse(method, url, response.StatusCode, responseContent);
-
-        return string.IsNullOrEmpty(responseContent)
-            ? default
-            : JsonSerializer.Deserialize<T>(responseContent);
-    }
-
     private async Task ExecuteWithRetryAsync(
         Func<Task<HttpResponseMessage>> request,
         string method,
@@ -129,7 +96,7 @@ public class HttpService(HttpClient httpClient, string baseUrl)
         LogResponse(method, url, response.StatusCode, responseContent);
     }
 
-    private void LogResponse(string method, string url, HttpStatusCode statusCode, string content)
+    private static void LogResponse(string method, string url, HttpStatusCode statusCode, string content)
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.Write($"[{method}] ");
@@ -150,89 +117,6 @@ public class HttpService(HttpClient httpClient, string baseUrl)
         Console.WriteLine();
     }
 
-    public async Task<T?> GetAsync<T>(string endpoint)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-        return await ExecuteWithRetryAsync<T>(() => _httpClient.GetAsync(url), "GET", url);
-    }
-
-    public async Task<T?> PostAsync<T>(string endpoint, object? payload = null)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-        StringContent? content = null;
-
-        if (payload != null)
-        {
-            string json = JsonSerializer.Serialize(payload);
-            content = new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        return await ExecuteWithRetryAsync<T>(
-            () => _httpClient.PostAsync(url, content),
-            "POST",
-            url
-        );
-    }
-
-    public async Task PostAsync(string endpoint, object? payload = null)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-        StringContent? content = null;
-
-        if (payload != null)
-        {
-            string json = JsonSerializer.Serialize(payload);
-            content = new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        await ExecuteWithRetryAsync(() => _httpClient.PostAsync(url, content), "POST", url);
-    }
-
-    public async Task<T?> PutAsync<T>(string endpoint, object? payload = null)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-        StringContent? content = null;
-
-        if (payload != null)
-        {
-            string json = JsonSerializer.Serialize(payload);
-            content = new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        return await ExecuteWithRetryAsync<T>(() => _httpClient.PutAsync(url, content), "PUT", url);
-    }
-
-    public async Task PutAsync(string endpoint, object? payload = null)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-        StringContent? content = null;
-
-        if (payload != null)
-        {
-            string json = JsonSerializer.Serialize(payload);
-            content = new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        await ExecuteWithRetryAsync(() => _httpClient.PutAsync(url, content), "PUT", url);
-    }
-
-    public async Task<T?> PatchAsync<T>(string endpoint, object? payload = null)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-        StringContent? content = null;
-
-        if (payload != null)
-        {
-            string json = JsonSerializer.Serialize(payload);
-            content = new StringContent(json, Encoding.UTF8, "application/json");
-        }
-
-        return await ExecuteWithRetryAsync<T>(
-            () => _httpClient.PatchAsync(url, content),
-            "PATCH",
-            url
-        );
-    }
 
     public async Task PatchAsync(string endpoint, object? payload = null)
     {
@@ -242,18 +126,11 @@ public class HttpService(HttpClient httpClient, string baseUrl)
         if (payload != null)
         {
             string json = JsonSerializer.Serialize(payload);
+            Console.WriteLine(json);
             content = new StringContent(json, Encoding.UTF8, "application/json");
         }
 
         await ExecuteWithRetryAsync(() => _httpClient.PatchAsync(url, content), "PATCH", url);
     }
 
-    public async Task<bool> DeleteAsync(string endpoint)
-    {
-        string url = $"{_baseUrl}/{endpoint.TrimStart('/')}";
-
-        await ExecuteWithRetryAsync(() => _httpClient.DeleteAsync(url), "DELETE", url);
-
-        return true;
-    }
 }

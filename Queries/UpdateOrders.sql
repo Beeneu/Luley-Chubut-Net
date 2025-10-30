@@ -5,7 +5,7 @@ SELECT
   T3."PTICode" || '-' || LPAD(T3."FolNumFrom", 8, '0') AS "nroRemito",
   T2."Quantity" AS "cantidadRemitida",
   CASE
-    WHEN COALESCE(T5."DocEntry", T6."DocEntry") IS NOT NULL OR (T3."DocNum" IS NULL AND T0."DocStatus" = 'C') THEN 7
+    WHEN COALESCE(T5."DocEntry", T6."DocEntry") IS NOT NULL OR (T3."DocNum" IS NULL AND T0."DocStatus" = 'C') THEN 8
     WHEN COALESCE(T4."DocEntry", T5."DocEntry") IS NOT NULL THEN 6
     WHEN T3."DocNum" IS NOT NULL AND T3."U_EstadoRemito" = 'DIS' THEN 5
     WHEN T3."DocNum" IS NOT NULL AND T3."U_ESTADO_LOGISTICA" IN (2, 3) THEN 4
@@ -32,7 +32,7 @@ WHERE
   AND T0."U_PO_CHUBUT" IS NOT NULL
   AND T0."U_SUB_PO_CHUBUT" IS NOT NULL
   AND (CASE
-    WHEN COALESCE(T5."DocEntry", T6."DocEntry") IS NOT NULL OR (T3."DocNum" IS NULL AND T0."DocStatus" = 'C') THEN 7
+    WHEN COALESCE(T5."DocEntry", T6."DocEntry") IS NOT NULL OR (T3."DocNum" IS NULL AND T0."DocStatus" = 'C') THEN 8
     WHEN COALESCE(T4."DocEntry", T5."DocEntry") IS NOT NULL THEN 6
     WHEN T3."DocNum" IS NOT NULL AND T3."U_EstadoRemito" = 'DIS' THEN 5
     WHEN T3."DocNum" IS NOT NULL AND T3."U_ESTADO_LOGISTICA" IN (2, 3) THEN 4
