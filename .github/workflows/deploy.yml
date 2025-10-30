@@ -1,0 +1,51 @@
+name: deploy
+
+on:
+  push:
+    branches: ["main", "dev"]
+
+jobs:
+  deploy:
+    name: 🎉 Deploy to main
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      - name: Checkout LFS objects
+        run: git lfs pull
+      
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: cd /home/deploy && ./deploy-cli.sh luley-chubut-net API-Luley-Chubut-Net main
+
+
+  deploy-dev:
+    name: 🧪 Deploy to dev
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - name: Checkout code with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      
+      - name: Checkout LFS objects
+        run: git lfs pull
+      
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: cd /home/deploy && ./deploy-cli.sh dev-luley-chubut-net Dev-Stage/DEV-API-Luley-Chubut-Net dev  

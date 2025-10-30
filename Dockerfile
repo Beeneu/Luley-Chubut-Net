@@ -25,15 +25,17 @@ RUN apt-get update && apt-get install -y \
     unixodbc \
     unixodbc-dev \
     wget \
+    git \
+    git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-
+# Copy HANA client (managed by Git LFS locally)
 COPY hanaclient-*.tar.gz /tmp/
 RUN cd /tmp && \
     tar -xzf hanaclient-*.tar.gz && \
     cd client && \
     ./hdbinst -a client --path=/usr/sap/hdbclient && \
-    rm -rf /tmp/hanaclient-* /tmp/SAP_HANA_CLIENT
+    rm -rf /tmp/hanaclient-*.tar.gz /tmp/client /tmp/SAP_HANA_CLIENT
 
 # Configure ODBC
 RUN echo "[HDBODBC]" >> /etc/odbcinst.ini && \
