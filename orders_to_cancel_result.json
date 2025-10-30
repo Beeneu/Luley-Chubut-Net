@@ -1,0 +1,82 @@
+[
+  {
+    "NumPedido": 116656,
+    "NumSubPedido": "KT6UTS4E",
+    "Articulos": [
+      {
+        "CodArticulo": "17915",
+        "Remitos": [
+          {
+            "NroRemito": "00023-00101374",
+            "CantidadRemitida": 1,
+            "EstadoRemito": 7
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "NumPedido": 116488,
+    "NumSubPedido": "F8T4HRA0",
+    "Articulos": [
+      {
+        "CodArticulo": "3927",
+        "Remitos": [
+          {
+            "NroRemito": "00023-00101044",
+            "CantidadRemitida": 1,
+            "EstadoRemito": 7
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "NumPedido": 115601,
+    "NumSubPedido": "PMN2X7C7",
+    "Articulos": [
+      {
+        "CodArticulo": "56321",
+        "Remitos": [
+          {
+            "NroRemito": "00023-00100487",
+            "CantidadRemitida": 1,
+            "EstadoRemito": 7
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "NumPedido": 115383,
+    "NumSubPedido": "QPK2WAAZ",
+    "Articulos": [
+      {
+        "CodArticulo": "52398",
+        "Remitos": [
+          {
+            "NroRemito": "00023-00099817",
+            "CantidadRemitida": 1,
+            "EstadoRemito": 7
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "NumPedido": 114931,
+    "NumSubPedido": "5NRZNMEX",
+    "Articulos": [
+      {
+        "CodArticulo": "52398",
+        "Remitos": [
+          {
+            "NroRemito": "00023-00099259",
+            "CantidadRemitida": 1,
+            "EstadoRemito": 7
+          }
+        ]
+      }
+    ]
+  }
+]

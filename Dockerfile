@@ -1,0 +1,50 @@
+# Adjust DOTNET_OS_VERSION as desired
+ARG DOTNET_SDK_VERSION=9.0
+
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_SDK_VERSION} AS build
+
+WORKDIR /src
+
+# Copy csproj and restore dependencies
+COPY Luley-Integracion-Net.csproj ./
+RUN dotnet restore Luley-Integracion-Net.csproj
+
+# Copy everything else
+COPY . ./
+
+# Build and publish to /app/publish
+RUN dotnet publish Luley-Integracion-Net.csproj -c Release -o /app/publish
+
+# Final stage/image
+FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_SDK_VERSION}
+
+WORKDIR /app
+
+# Install unixODBC and dependencies
+RUN apt-get update && apt-get install -y \
+    unixodbc \
+    unixodbc-dev \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+
+COPY hanaclient-*.tar.gz /tmp/
+RUN cd /tmp && \
+    tar -xzf hanaclient-*.tar.gz && \
+    cd client && \
+    ./hdbinst -a client --path=/usr/sap/hdbclient && \
+    rm -rf /tmp/hanaclient-* /tmp/SAP_HANA_CLIENT
+
+# Configure ODBC
+RUN echo "[HDBODBC]" >> /etc/odbcinst.ini && \
+    echo "Driver=/usr/sap/hdbclient/libodbcHDB.so" >> /etc/odbcinst.ini
+
+ARG INTERNAL_PORT=5555
+ENV ASPNETCORE_URLS=http://+:${INTERNAL_PORT}
+ENV ASPNETCORE_ENVIRONMENT=Production
+EXPOSE ${INTERNAL_PORT}
+
+# Copy published files
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "Luley-Integracion-Net.dll"]
