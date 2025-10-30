@@ -29,15 +29,23 @@ RUN apt-get update && apt-get install -y \
     git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy HANA client (managed by Git LFS locally)
-RUN ls 
-RUN cd .. && ls 
+# Debug: List files in current directory
+RUN echo "📦 Files in build context:" && ls -la
 
-COPY hanaclient-*.tar.gz /tmp/
-RUN cd /tmp
-RUN tar -xzvf hanaclient-*.tar.gz && \ cd client
-RUN ./hdbinst -a client --path=/usr/sap/hdbclient
-RUN rm -rf /tmp/hanaclient-*.tar.gz /tmp/client /tmp/SAP_HANA_CLIENT
+# Copy HANA client (managed by Git LFS locally)
+COPY hanaclient*.tar.gz /tmp/hanaclient.tar.gz
+
+# Debug: Verify file was copied
+RUN echo "📦 Files in /tmp:" && ls -lh /tmp/
+
+# Extract and install HANA client
+RUN cd /tmp && \
+    tar -xzf hanaclient.tar.gz && \
+    ls -la && \
+    cd client && \
+    ./hdbinst -a client --path=/usr/sap/hdbclient && \
+    cd / && \
+    rm -rf /tmp/hanaclient.tar.gz /tmp/client /tmp/SAP_HANA_CLIENT
 
 
 # Configure ODBC
