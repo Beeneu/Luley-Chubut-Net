@@ -18,6 +18,15 @@ jobs:
       - name: Checkout LFS objects
         run: git lfs pull
       
+      - name: Verify LFS file downloaded
+        run: |
+          echo "📦 Checking if HANA client was downloaded..."
+          ls -lh hanaclient-*.tar.gz || echo "❌ HANA client file not found!"
+          if [ -f hanaclient-*.tar.gz ]; then
+            echo "✅ HANA client found: $(ls -lh hanaclient-*.tar.gz)"
+            file hanaclient-*.tar.gz
+          fi
+      
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -40,6 +49,15 @@ jobs:
       
       - name: Checkout LFS objects
         run: git lfs pull
+      
+      - name: Verify LFS file downloaded
+        run: |
+          echo "📦 Checking if HANA client was downloaded..."
+          ls -lh hanaclient-*.tar.gz || echo "❌ HANA client file not found!"
+          if [ -f hanaclient-*.tar.gz ]; then
+            echo "✅ HANA client found: $(ls -lh hanaclient-*.tar.gz)"
+            file hanaclient-*.tar.gz
+          fi
       
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@v1.2.0
