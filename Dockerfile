@@ -40,7 +40,7 @@ RUN echo "📦 Files in /tmp:" && ls -lh /tmp/
 
 # Extract and install HANA client
 RUN cd /tmp && \
-    tar -xzf hanaclient.tar.gz && \
+    tar -xzvf hanaclient.tar.gz && \
     ls -la && \
     cd client && \
     ./hdbinst -a client --path=/usr/sap/hdbclient && \
