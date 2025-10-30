@@ -29,10 +29,17 @@ RUN apt-get update && apt-get install -y \
     git-lfs \
     && rm -rf /var/lib/apt/lists/*
 
-# Debug: List files in current directory
-RUN echo "📦 Files in build context:" && ls -la
+# Debug: List files in build context to verify hanaclient*.tar.gz exists
+RUN echo "📦 Files in build context:" && ls -la /src
 
 # Copy HANA client (managed by Git LFS locally)
+COPY hanaclient*.tar.gz /tmp/hanaclient.tar.gz
+
+# Debug: Verify file was copied and renamed correctly
+RUN echo "📦 Files in /tmp:" && ls -lh /tmp/ && \
+    if [ ! -f /tmp/hanaclient.tar.gz ]; then echo "❌ hanaclient.tar.gz not found!"; exit 1; fi
+
+    # Copy HANA client (managed by Git LFS locally)
 COPY hanaclient*.tar.gz /tmp/hanaclient.tar.gz
 
 # Debug: Verify file was copied
